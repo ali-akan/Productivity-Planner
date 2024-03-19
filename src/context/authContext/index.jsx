@@ -1,7 +1,8 @@
 import React from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../firebase/firebase";
+import { firebaseAuth } from "../../firebase/firebase";
 import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = React.createContext();
 
@@ -10,34 +11,35 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [userLoggedIn, setUserLoggedIn] = useState(false);
+  const [userToken, setUserToken] = useState(null); // Changed from currentUser to userToken
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, initializeUser);
+    const unsubscribe = onAuthStateChanged(firebaseAuth, initializeUser);
     return unsubscribe;
   }, []);
 
   async function initializeUser(user) {
     if (user) {
-      setCurrentUser({ ...user });
-      setUserLoggedIn(true);
+      const token = await user.getIdToken();
+      setUserToken(token);
+      setIsLoggedIn(true);
+      navigate("/home");
     } else {
-      setCurrentUser(null);
-      setUserLoggedIn(false);
+      setUserToken(null);
+      setIsLoggedIn(false);
+      navigate("/login");
     }
     setLoading(false);
   }
+
   const value = {
-    currentUser,
-    userLoggedIn,
+    userToken,
+    isLoggedIn,
     loading,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

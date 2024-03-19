@@ -1,5 +1,36 @@
+import Header from "./components/Starting Content/Header";
+import { AuthProvider } from "./context/authContext";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import { useRoutes } from "react-router";
 function App() {
-  return <div>This is a test</div>;
+  const routesArray = [
+    {
+      path: "*",
+      element: <Login />,
+    },
+    {
+      path: "/login",
+      element: <Login />,
+    },
+    {
+      path: "/register",
+      element: <Register />,
+    },
+    {
+      path: "/home",
+      element: <Home />,
+    },
+  ];
+  let routesElement = useRoutes(routesArray);
+
+  return (
+    <AuthProvider>
+      <Header />
+      <div>{routesElement}</div>
+    </AuthProvider>
+  );
 }
 
 export default App;

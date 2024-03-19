@@ -1,4 +1,4 @@
-import { auth } from "./firebase";
+import { firebaseAuth } from "./firebase";
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -9,40 +9,41 @@ import {
   updatePassword,
 } from "firebase/auth";
 
-export const doCreateUserWithEmailAndPassword = async (email, password) => {
-  return createUserWithEmailAndPassword(auth, email, password);
+export const authCreateUser = async ({ email, password }) => {
+  // Destructure email and password from the object
+  return createUserWithEmailAndPassword(firebaseAuth, email, password);
 };
 
-export const doSignInWithEmailAndPassword = (email, password) => {
-  return signInWithEmailAndPassword(auth, email, password);
+export const authSignInWith = async ({ email, password }) => {
+  return signInWithEmailAndPassword(firebaseAuth, email, password);
 };
 
-export const doSignInWithGoogle = async () => {
+export const authSignInWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
-  const result = await signInWithPopup(auth, provider);
+  const result = await signInWithPopup(firebaseAuth, provider);
 
   // save the user infos in filestore  result.user
   return result;
 };
 
-export const doSignOut = () => {
-  return auth.signOut();
+export const authSignOut = () => {
+  return firebaseAuth.signOut();
 };
 
 /// following part will be added the project, these are extras
 
-export const doPasswordReset = (email) => {
-  return sendPasswordResetEmail(auth, email);
+export const authPasswordReset = (email) => {
+  return sendPasswordResetEmail(firebaseAuth, email);
 };
 
-export const doPasswordChange = (password) => {
-  return updatePassword(auth.currentUser, password);
+export const authPasswordChange = (password) => {
+  return updatePassword(firebaseAuth.userToken, password);
 };
 
 ///email verification part
 
-export const doSendEmailVerification = () => {
-  return sendEmailVerification(auth.currentUser, {
+export const authSendEmailVerification = () => {
+  return sendEmailVerification(firebaseAuth.userToken, {
     url: `${window.location.origin}/home`,
   });
 };
