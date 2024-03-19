@@ -1,8 +1,8 @@
 import Header from "./components/Starting Content/Header";
-import { AuthProvider } from "./context/authContext";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import { AuthProvider } from "./context/authContext";
 import { useRoutes } from "react-router";
 function App() {
   const routesArray = [
