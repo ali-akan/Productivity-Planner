@@ -37,13 +37,13 @@ export const authPasswordReset = (email) => {
 };
 
 export const authPasswordChange = (password) => {
-  return updatePassword(firebaseAuth.userToken, password);
+  return updatePassword(firebaseAuth.userInfo, password);
 };
 
 ///email verification part
 
 export const authSendEmailVerification = () => {
-  return sendEmailVerification(firebaseAuth.userToken, {
+  return sendEmailVerification(firebaseAuth.userInfo, {
     url: `${window.location.origin}/home`,
   });
 };

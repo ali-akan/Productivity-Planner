@@ -1,19 +1,30 @@
 import React from "react";
 import { Navigate, Link } from "react-router-dom";
 import { useMutation } from "react-query";
+import { useForm } from "react-hook-form";
+import {
+  TextField,
+  Button,
+  Typography,
+  CircularProgress,
+  Alert,
+} from "@mui/material";
 import { authSignInWith, authSignInWithGoogle } from "../firebase/auth";
 import { useAuth } from "../context/authContext";
 
 const Login = () => {
-  const { userLoggedIn } = useAuth();
+  const { isLoggedIn } = useAuth();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const signInMutation = useMutation(authSignInWith);
   const googleSignInMutation = useMutation(authSignInWithGoogle);
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    const email = e.target.email.value;
-    const password = e.target.password.value;
+  const onSubmit = async (data) => {
+    const { email, password } = data;
     if (!signInMutation.isLoading) {
       try {
         await signInMutation.mutateAsync({ email, password });
@@ -33,57 +44,74 @@ const Login = () => {
   };
 
   return (
-    <div>
-      {userLoggedIn && <Navigate to={"/home"} replace={true} />}
-      <div>
-        <form onSubmit={onSubmit}>
+    <>
+      {isLoggedIn ? (
+        <Navigate to={"/home"} replace={true} />
+      ) : (
+        <div>
           <div>
-            <label>Email</label>
-            <input type="email" name="email" autoComplete="email" required />
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div>
+                <TextField
+                  label="Email"
+                  type="email"
+                  {...register("email", { required: true })}
+                  autoComplete="email"
+                  error={!!errors.email}
+                  helperText={errors.email && "Email is required"}
+                  required
+                />
+              </div>
+              <div>
+                <TextField
+                  label="Password"
+                  type="password"
+                  {...register("password", { required: true })}
+                  autoComplete="current-password"
+                  error={!!errors.password}
+                  helperText={errors.password && "Password is required"}
+                  required
+                />
+              </div>
+              {signInMutation.isError && (
+                <Alert severity="error">{signInMutation.error.message}</Alert>
+              )}
+              <Button
+                type="submit"
+                disabled={signInMutation.isLoading}
+                variant="contained"
+                sx={{
+                  mt: 2,
+                }}
+              >
+                {signInMutation.isLoading ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  "Sign In"
+                )}
+              </Button>
+            </form>
+            <Typography variant="body2" sx={{ mt: 2 }}>
+              Don't have an account? <Link to="/register">Sign Up</Link>
+            </Typography>
+            <Button
+              disabled={googleSignInMutation.isLoading}
+              onClick={onGoogleSignIn}
+              variant="outlined"
+              sx={{
+                mt: 2,
+              }}
+            >
+              {googleSignInMutation.isLoading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Continue with Google"
+              )}
+            </Button>
           </div>
-          <div>
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              required
-            />
-          </div>
-          {signInMutation.isError && (
-            <span>{signInMutation.error.message}</span>
-          )}
-          <button
-            type="submit"
-            disabled={signInMutation.isLoading}
-            className={`w-full px-4 py-2 text-white font-medium rounded-lg ${
-              signInMutation.isLoading
-                ? "bg-gray-300 cursor-not-allowed"
-                : "bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl transition duration-300"
-            }`}
-          >
-            {signInMutation.isLoading ? "Signing In..." : "Sign In"}
-          </button>
-        </form>
-        <p>
-          Don't Have an account?
-          <Link to={"/register"}>Sign Up</Link>
-        </p>
-        <button
-          disabled={googleSignInMutation.isLoading}
-          onClick={onGoogleSignIn}
-          className={`w-full flex items-center justify-center gap-x-3 py-2.5 border rounded-lg text-sm font-medium  ${
-            googleSignInMutation.isLoading
-              ? "cursor-not-allowed"
-              : "hover:bg-gray-100 transition duration-300 active:bg-gray-100"
-          }`}
-        >
-          {googleSignInMutation.isLoading
-            ? "Signing In..."
-            : "Continue with Google"}
-        </button>
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 };
 

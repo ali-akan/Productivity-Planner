@@ -11,7 +11,7 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-  const [userToken, setUserToken] = useState(null); // Changed from currentUser to userToken
+  const [userInfo, setUserInfo] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -24,11 +24,11 @@ export function AuthProvider({ children }) {
   async function initializeUser(user) {
     if (user) {
       const token = await user.getIdToken();
-      setUserToken(token);
+      setUserInfo(token);
       setIsLoggedIn(true);
       navigate("/home");
     } else {
-      setUserToken(null);
+      setUserInfo(null);
       setIsLoggedIn(false);
       navigate("/login");
     }
@@ -36,7 +36,7 @@ export function AuthProvider({ children }) {
   }
 
   const value = {
-    userToken,
+    userInfo,
     isLoggedIn,
     loading,
   };

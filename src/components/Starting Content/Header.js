@@ -1,57 +1,37 @@
+import React from "react";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../context/authContext";
 import { authSignOut } from "../../firebase/auth";
-import { Link } from "react-router-dom";
-import React from "react";
-
-// import Box from "@mui/material/Box";
-// import BottomNavigation from "@mui/material/BottomNavigation";
-// import BottomNavigationAction from "@mui/material/BottomNavigationAction";
+import { Button } from "@mui/material";
 
 const Header = () => {
-  // const [value, setValue] = React.useState(0);
-
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
+
   return (
     <nav>
       {isLoggedIn ? (
         <div>
-          <button
+          <Button
             onClick={() => {
               authSignOut().then(() => {
                 navigate("/login");
               });
             }}
+            variant="outlined"
           >
             Logout
-          </button>
+          </Button>
         </div>
       ) : (
         <div>
-          <Link to={"/login"}>Login</Link>
-          <Link to={"/register"}>Register New Account</Link>
-
-          {/* <Box>
-            <BottomNavigation
-              showLabels
-              value={value}
-              onChange={(event, newValue) => {
-                setValue(newValue);
-              }}
-            >
-              <BottomNavigationAction
-                label="Login"
-                component={Link}
-                to="/login"
-              />
-              <BottomNavigationAction
-                label="Register"
-                component={Link}
-                to="/register"
-              />
-            </BottomNavigation>
-          </Box> */}
+          <Button component={Link} to={"/login"} variant="outlined">
+            Login
+          </Button>
+          <Button component={Link} to={"/register"} variant="outlined">
+            Register New Account
+          </Button>
         </div>
       )}
     </nav>
