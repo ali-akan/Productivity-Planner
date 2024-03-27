@@ -8,6 +8,8 @@ import {
   Typography,
   CircularProgress,
   Alert,
+  Box,
+  FormControl,
 } from "@mui/material";
 import { authSignInWith, authSignInWithGoogle } from "../firebase/auth";
 import { useAuth } from "../context/authContext";
@@ -48,10 +50,12 @@ const Login = () => {
       {isLoggedIn ? (
         <Navigate to={"/home"} replace={true} />
       ) : (
-        <div>
-          <div>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div>
+        <Box>
+          <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+            {" "}
+            {/* Use Box as a form .  Since FormControl component does not have an onSubmit prop.*/}
+            <FormControl>
+              <Box>
                 <TextField
                   label="Email"
                   type="email"
@@ -61,8 +65,8 @@ const Login = () => {
                   helperText={errors.email && "Email is required"}
                   required
                 />
-              </div>
-              <div>
+              </Box>
+              <Box>
                 <TextField
                   label="Password"
                   type="password"
@@ -72,7 +76,7 @@ const Login = () => {
                   helperText={errors.password && "Password is required"}
                   required
                 />
-              </div>
+              </Box>
               {signInMutation.isError && (
                 <Alert severity="error">{signInMutation.error.message}</Alert>
               )}
@@ -90,26 +94,26 @@ const Login = () => {
                   "Sign In"
                 )}
               </Button>
-            </form>
-            <Typography variant="body2" sx={{ mt: 2 }}>
-              Don't have an account? <Link to="/register">Sign Up</Link>
-            </Typography>
-            <Button
-              disabled={googleSignInMutation.isLoading}
-              onClick={onGoogleSignIn}
-              variant="outlined"
-              sx={{
-                mt: 2,
-              }}
-            >
-              {googleSignInMutation.isLoading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Continue with Google"
-              )}
-            </Button>
-          </div>
-        </div>
+            </FormControl>
+          </Box>
+          <Typography variant="body2" sx={{ mt: 2 }}>
+            Don't have an account? <Link to="/register">Sign Up</Link>
+          </Typography>
+          <Button
+            disabled={googleSignInMutation.isLoading}
+            onClick={onGoogleSignIn}
+            variant="outlined"
+            sx={{
+              mt: 2,
+            }}
+          >
+            {googleSignInMutation.isLoading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              "Continue with Google"
+            )}
+          </Button>
+        </Box>
       )}
     </>
   );

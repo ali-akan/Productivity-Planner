@@ -1,4 +1,4 @@
-import Header from "./components/Starting Content/Header";
+import Header from "./features/Header/Header";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
