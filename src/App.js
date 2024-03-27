@@ -1,10 +1,9 @@
-import { useRoutes } from "react-router";
-
+import Header from "./features/Header/Header";
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Home from "./pages/Home";
-
-
+import { AuthProvider } from "./context/authContext";
+import { useRoutes } from "react-router";
 function App() {
   const routesArray = [
     {
@@ -24,10 +23,14 @@ function App() {
       element: <Home />,
     },
   ];
-
   let routesElement = useRoutes(routesArray);
 
-  return <div>{routesElement}</div>;
+  return (
+    <AuthProvider>
+      <Header />
+      <div>{routesElement}</div>
+    </AuthProvider>
+  );
 }
 
 export default App;
