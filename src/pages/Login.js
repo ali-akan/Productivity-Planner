@@ -45,77 +45,74 @@ const Login = () => {
     }
   };
 
+  if (isLoggedIn) {
+    return <Navigate to={"/home"} replace={true} />;
+  }
+
   return (
-    <>
-      {isLoggedIn ? (
-        <Navigate to={"/home"} replace={true} />
-      ) : (
-        <Box>
-          <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-            {" "}
-            {/* Use Box as a form .  Since FormControl component does not have an onSubmit prop.*/}
-            <FormControl>
-              <Box>
-                <TextField
-                  label="Email"
-                  type="email"
-                  {...register("email", { required: true })}
-                  autoComplete="email"
-                  error={!!errors.email}
-                  helperText={errors.email && "Email is required"}
-                  required
-                />
-              </Box>
-              <Box>
-                <TextField
-                  label="Password"
-                  type="password"
-                  {...register("password", { required: true })}
-                  autoComplete="current-password"
-                  error={!!errors.password}
-                  helperText={errors.password && "Password is required"}
-                  required
-                />
-              </Box>
-              {signInMutation.isError && (
-                <Alert severity="error">{signInMutation.error.message}</Alert>
-              )}
-              <Button
-                type="submit"
-                disabled={signInMutation.isLoading}
-                variant="contained"
-                sx={{
-                  mt: 2,
-                }}
-              >
-                {signInMutation.isLoading ? (
-                  <CircularProgress size={24} color="inherit" />
-                ) : (
-                  "Sign In"
-                )}
-              </Button>
-            </FormControl>
+    <Box>
+      <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+        {" "}
+        <FormControl>
+          <Box>
+            <TextField
+              label="Email"
+              type="email"
+              {...register("email", { required: true })}
+              autoComplete="email"
+              error={!!errors.email}
+              helperText={errors.email && "Email is required"}
+              required
+            />
           </Box>
-          <Typography variant="body2" sx={{ mt: 2 }}>
-            Don't have an account? <Link to="/register">Sign Up</Link>
-          </Typography>
+          <Box>
+            <TextField
+              label="Password"
+              type="password"
+              {...register("password", { required: true })}
+              autoComplete="current-password"
+              error={!!errors.password}
+              helperText={errors.password && "Password is required"}
+              required
+            />
+          </Box>
+          {signInMutation.isError && (
+            <Alert severity="error">{signInMutation.error.message}</Alert>
+          )}
           <Button
-            disabled={googleSignInMutation.isLoading}
-            onClick={onGoogleSignIn}
-            variant="outlined"
+            type="submit"
+            disabled={signInMutation.isLoading}
+            variant="contained"
             sx={{
               mt: 2,
             }}
           >
-            {googleSignInMutation.isLoading ? (
+            {signInMutation.isLoading ? (
               <CircularProgress size={24} color="inherit" />
             ) : (
-              "Continue with Google"
+              "Sign In"
             )}
           </Button>
-        </Box>
-      )}
-    </>
+        </FormControl>
+      </Box>
+      <Typography variant="body2" sx={{ mt: 2 }}>
+        Don't have an account? <Link to="/register">Sign Up</Link>
+      </Typography>
+      <Button
+        disabled={googleSignInMutation.isLoading}
+        onClick={onGoogleSignIn}
+        variant="outlined"
+        sx={{
+          mt: 2,
+        }}
+      >
+        {googleSignInMutation.isLoading ? (
+          <CircularProgress size={24} color="inherit" />
+        ) : (
+          "Continue with Google"
+        )}
+      </Button>
+    </Box>
   );
 };
 
