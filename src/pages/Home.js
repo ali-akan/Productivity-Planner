@@ -1,17 +1,19 @@
 import { useAuth } from "../context/authContext";
-import { Box } from "@mui/material";
 import Typography from "@mui/material/Typography";
 
 const Home = () => {
   const { userInfo } = useAuth();
-  const displayName = userInfo?.displayName || userInfo?.email || "Loading...";
+  const displayName = userInfo?.displayName;
+  const email = userInfo?.email;
 
   return (
-    <Box>
-      <Typography>
-        Hello {displayName}, you are now logged in.
-      </Typography>
-    </Box>
+    <Typography>
+      {userInfo ? (
+        <>Hello {displayName || email}, you are now logged in.</>
+      ) : (
+        "Loading..."
+      )}
+    </Typography>
   );
 };
 

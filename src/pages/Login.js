@@ -55,7 +55,7 @@ const Login = () => {
   }
 
   return (
-    <Box>
+    <>
       <Box component="form" onSubmit={handleSubmit(onSubmit)}>
         <FormControl>
           <Box>
@@ -116,7 +116,7 @@ const Login = () => {
           "Continue with Google"
         )}
       </Button>
-    </Box>
+    </>
   );
 };
 
