@@ -22,27 +22,32 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const signInMutation = useMutation(authSignInWith);
-  const googleSignInMutation = useMutation(authSignInWithGoogle);
+  const signInMutation = useMutation(authSignInWith, {
+    onError: (error) => {
+      console.error("Error signing in:", error);
+    },
+  });
+
+  const googleSignInMutation = useMutation(authSignInWithGoogle, {
+    onError: (error) => {
+      console.error("Error signing in with Google:", error);
+    },
+  });
 
   const onSubmit = async (data) => {
     const { email, password } = data;
-    if (!signInMutation.isLoading) {
-      try {
-        await signInMutation.mutateAsync({ email, password });
-      } catch (error) {
-        console.error("Error signing in:", error);
-      }
+    try {
+      await signInMutation.mutateAsync({ email, password });
+    } catch (error) {
+      console.error("Error signing in:", error);
     }
   };
 
   const onGoogleSignIn = (e) => {
     e.preventDefault();
-    if (!googleSignInMutation.isLoading) {
-      googleSignInMutation.mutate().catch((err) => {
-        console.error("Error signing in with Google:", err);
-      });
-    }
+    googleSignInMutation.mutate().catch((err) => {
+      console.error("Error signing in with Google:", err);
+    });
   };
 
   if (isLoggedIn) {
@@ -52,7 +57,6 @@ const Login = () => {
   return (
     <Box>
       <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-        {" "}
         <FormControl>
           <Box>
             <TextField

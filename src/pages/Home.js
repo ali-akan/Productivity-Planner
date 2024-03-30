@@ -4,18 +4,12 @@ import Typography from "@mui/material/Typography";
 
 const Home = () => {
   const { userInfo } = useAuth();
+  const displayName = userInfo?.displayName || userInfo?.email || "Loading...";
 
   return (
     <Box>
       <Typography>
-        {userInfo ? (
-          <span>
-            Hello {userInfo.displayName ? userInfo.displayName : userInfo.email}
-            , you are now logged in.
-          </span>
-        ) : (
-          "Loading..."
-        )}
+        Hello {displayName}, you are now logged in.
       </Typography>
     </Box>
   );
