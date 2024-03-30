@@ -58,7 +58,6 @@ const Login = () => {
     <>
       <Box component="form" onSubmit={handleSubmit(onSubmit)}>
         <FormControl>
-          <Box>
             <TextField
               label="Email"
               type="email"
@@ -68,8 +67,6 @@ const Login = () => {
               helperText={errors.email && "Email is required"}
               required
             />
-          </Box>
-          <Box>
             <TextField
               label="Password"
               type="password"
@@ -79,7 +76,6 @@ const Login = () => {
               helperText={errors.password && "Password is required"}
               required
             />
-          </Box>
           {signInMutation.isError && (
             <Alert severity="error">{signInMutation.error.message}</Alert>
           )}
