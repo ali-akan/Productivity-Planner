@@ -10,7 +10,6 @@ import {
 } from "firebase/auth";
 
 export const authCreateUser = async ({ email, password }) => {
-  // Destructure email and password from the object
   return createUserWithEmailAndPassword(firebaseAuth, email, password);
 };
 
@@ -22,7 +21,6 @@ export const authSignInWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
   const result = await signInWithPopup(firebaseAuth, provider);
 
-  // save the user infos in filestore  result.user
   return result;
 };
 
