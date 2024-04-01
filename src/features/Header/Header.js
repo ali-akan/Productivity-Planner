@@ -10,11 +10,14 @@ const Header = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
 
-  const { mutate: signOut } = useMutation(authSignOut, {
-    onSuccess: () => {
-      navigate("/login");
-    },
-  });
+  const { mutate: signOut, isLoading: isSignOutLoading } = useMutation(
+    authSignOut,
+    {
+      onSuccess: () => {
+        navigate("/login");
+      },
+    }
+  );
 
   const handleSignOut = () => {
     signOut();
@@ -29,7 +32,7 @@ const Header = () => {
             variant="outlined"
             disabled={signOut.isLoading}
           >
-            {signOut.isLoading ? "Logging out..." : "Logout"}
+            {isSignOutLoading ? "Logging out..." : "Logout"}
           </Button>
         </>
       ) : (

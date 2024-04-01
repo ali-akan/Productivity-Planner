@@ -5,16 +5,11 @@ const Home = () => {
   const { userInfo } = useAuth();
   const displayName = userInfo?.displayName;
   const email = userInfo?.email;
+  const loginMessage = userInfo
+    ? `Hello ${displayName || email}, you are now logged in.`
+    : "Loading...";
 
-  return (
-    <Typography>
-      {userInfo ? (
-        <>Hello {displayName || email}, you are now logged in.</>
-      ) : (
-        "Loading..."
-      )}
-    </Typography>
-  );
+  return <Typography>{loginMessage}</Typography>;
 };
 
 export default Home;

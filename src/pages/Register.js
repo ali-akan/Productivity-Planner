@@ -45,10 +45,9 @@ const Register = () => {
   return (
     <>
       <Box>
-        <Box>
-          <Typography variant="h6">Create a New Account</Typography>
-        </Box>
+        <Typography variant="h6">Create a New Account</Typography>
       </Box>
+
       <Box component="form" onSubmit={handleSubmit(onSubmit)}>
         <FormControl onSubmit={handleSubmit(onSubmit)}>
           <Box>
