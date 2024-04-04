@@ -28,13 +28,9 @@ const Register = () => {
 
   const registerMutation = useMutation(authCreateUser);
 
-  const onSubmit = async (data) => {
+  const onSubmit = (data) => {
     if (!registerMutation.isLoading) {
-      try {
-        await registerMutation.mutateAsync(data);
-      } catch (error) {
-        console.error("Registration error:", error);
-      }
+      registerMutation.mutate(data);
     }
   };
 
