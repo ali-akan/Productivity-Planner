@@ -1,5 +1,15 @@
+import { useAuth } from "../context/authContext";
+import Typography from "@mui/material/Typography";
+
 const Home = () => {
-  return <div>this is a homepage Test!</div>;
+  const { userInfo } = useAuth();
+  const displayName = userInfo?.displayName;
+  const email = userInfo?.email;
+  const loginMessage = userInfo
+    ? `Hello ${displayName || email}, you are now logged in.`
+    : "Loading...";
+
+  return <Typography>{loginMessage}</Typography>;
 };
 
 export default Home;
