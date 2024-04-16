@@ -1,3 +1,4 @@
+import MyCalendar from "../components/FullCalendar/MyCalendar";
 import { useAuth } from "../context/authContext";
 import Typography from "@mui/material/Typography";
 
@@ -9,7 +10,9 @@ const Home = () => {
     ? `Hello ${displayName || email}, you are now logged in.`
     : "Loading...";
 
-  return <Typography>{loginMessage}</Typography>;
+  return <Typography>{loginMessage}
+<MyCalendar/>
+    </Typography>;
 };
 
 export default Home;
