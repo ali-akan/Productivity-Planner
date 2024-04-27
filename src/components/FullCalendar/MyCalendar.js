@@ -125,10 +125,7 @@ function MyCalendar() {
       <Modal open={openModal} onClose={handleModalClose}>
         <Box
           sx={{
-            bgcolor: "primary.main",
-            "&:hover": {
-              bgcolor: "primary.dark",
-            },
+            bgcolor: "secondary.main",
           }}
         >
           <h2>{selectedEvents ? "Edit Events" : "Add Events"}</h2>

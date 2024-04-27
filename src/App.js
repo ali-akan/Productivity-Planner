@@ -4,6 +4,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { AuthProvider } from "./context/authContext";
 import { useRoutes } from "react-router";
+import { CssBaseline } from "@mui/material";
+
 function App() {
   const routesArray = [
     {
@@ -27,8 +29,10 @@ function App() {
 
   return (
     <AuthProvider>
+      <CssBaseline />
+
       <Header />
-      <div>{routesElement}</div>
+      {routesElement}
     </AuthProvider>
   );
 }
