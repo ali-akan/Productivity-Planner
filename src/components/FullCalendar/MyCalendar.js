@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin from "@fullcalendar/interaction";
+import interactionPlugin, { Draggable } from "@fullcalendar/interaction";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { ref, push, set, get } from "firebase/database";
+import { ref, push, set, get, remove, update } from "firebase/database";
 import { firebaseDb } from "../../firebase/firebase";
 import { useAuth } from "../../context/authContext";
 import { useForm } from "react-hook-form";
@@ -21,11 +21,26 @@ function MyCalendar() {
   } = useForm();
   const [openModal, setOpenModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedEvents, setSelectedEvents] = useState(null); // Added state for selected events
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
-  const handleModalOpen = (start, events) => {
+  useEffect(() => {
+    const draggableEl = document.getElementById("draggable-element");
+    const draggable = new Draggable(draggableEl, {
+      eventData: function (eventEl) {
+        return {
+          title: eventEl.innerText,
+        };
+      },
+    });
+
+    return () => {
+      draggable.destroy();
+    };
+  }, []);
+
+  const handleModalOpen = (start, event) => {
     setSelectedDate(start);
-    setSelectedEvents(events); // Set selected events
+    setSelectedEvent(event);
     setOpenModal(true);
   };
 
@@ -42,6 +57,7 @@ function MyCalendar() {
     const eventsRef = ref(firebaseDb, userPath);
     const snapshot = await get(eventsRef);
     const eventData = snapshot.val();
+
     return eventData ? Object.values(eventData) : [];
   };
 
@@ -58,7 +74,9 @@ function MyCalendar() {
     async ({ title, description, start }) => {
       const userPath = `users/${userInfo.uid}/plans`;
       const newEventRef = push(ref(firebaseDb, userPath));
+      const eventId = newEventRef.key;
       await set(newEventRef, {
+        id: eventId,
         title,
         description,
         start,
@@ -69,8 +87,37 @@ function MyCalendar() {
         alert("Event added successfully");
         queryClient.invalidateQueries("events");
         reset();
-        handleModalClose(); // Close the modal after successful submission
+        handleModalClose();
       },
+      onError: (error) => {
+        alert("Error: " + error.message);
+      },
+    }
+  );
+
+  const deleteEventMutation = useMutation(
+    async (eventId) => {
+      const userPath = `users/${userInfo.uid}/plans/${eventId}`;
+      await remove(ref(firebaseDb, userPath));
+    },
+    {
+      onSuccess: () => {
+        alert("Event deleted successfully");
+        queryClient.invalidateQueries("events");
+        handleModalClose();
+      },
+      onError: (error) => {
+        alert("Error: " + error.message);
+      },
+    }
+  );
+
+  const updateEventMutation = useMutation(
+    async ({ eventId, start }) => {
+      const userPath = `users/${userInfo.uid}/plans/${eventId}`;
+      await update(ref(firebaseDb, userPath), { start });
+    },
+    {
       onError: (error) => {
         alert("Error: " + error.message);
       },
@@ -79,12 +126,9 @@ function MyCalendar() {
 
   const handleDateClick = (eventInfo) => {
     const start = eventInfo.dateStr;
-    const filteredEvents = events.filter(
-      (ev) => ev.start === eventInfo.dateStr
-    );
     if (start) {
       reset({ start });
-      handleModalOpen(start, filteredEvents); // Pass filtered events
+      handleModalOpen(start, null);
     } else {
       alert("Please select a valid date");
     }
@@ -98,6 +142,38 @@ function MyCalendar() {
     });
   };
 
+  const handleDeleteEvent = (eventId) => {
+    if (window.confirm("Are you sure you want to delete this event?")) {
+      deleteEventMutation.mutate(eventId);
+    }
+  };
+
+  const handleEventDrop = (eventDropInfo) => {
+    const { event } = eventDropInfo;
+    const eventId = event.id;
+    const newStart = event.startStr;
+
+    updateEventMutation.mutate(
+      { eventId, start: newStart },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries("events");
+          refetch();
+        },
+      }
+    );
+  };
+
+  const handleEventDragStart = (eventDragInfo) => {
+    const eventEl = eventDragInfo.el;
+    eventEl.classList.add("fc-dragging");
+  };
+
+  const handleEventDragStop = (eventDragInfo) => {
+    const eventEl = eventDragInfo.el;
+    eventEl.classList.remove("fc-dragging");
+  };
+
   return (
     <>
       <Button onClick={() => refetch()}>Refresh Events</Button>
@@ -105,8 +181,11 @@ function MyCalendar() {
         <TypographyTheme variant="subtitle1">Loading...</TypographyTheme>
       )}
       {isError && (
-        <Typography variant="subtitle1">Error fetching events</Typography>
+        <TypographyTheme variant="subtitle1">
+          Error fetching events
+        </TypographyTheme>
       )}
+      <div id="draggable-element">Drag me to create an event</div>
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
@@ -120,6 +199,18 @@ function MyCalendar() {
               }))
             : []
         }
+        dayMaxEventRows={true}
+        displayEventTime={false}
+        eventDisplay="block"
+        eventBackgroundColor={"#ffffd2"}
+        eventTextColor={"#2C3E50"}
+        editable={true}
+        eventClick={(info) => {
+          handleModalOpen(info.event.startStr, info.event);
+        }}
+        eventDrop={handleEventDrop} // Add event drop handler
+        eventDragStart={handleEventDragStart} // Add event drag start handler
+        eventDragStop={handleEventDragStop} // Add event drag stop handler
       />
 
       <Modal open={openModal} onClose={handleModalClose}>
@@ -128,27 +219,40 @@ function MyCalendar() {
             bgcolor: "secondary.main",
           }}
         >
-          <h2>{selectedEvents ? "Edit Events" : "Add Events"}</h2>
+          <h2>{selectedEvent ? "Edit Event" : "Add Event"}</h2>
           <form onSubmit={handleSubmit(handleFormSubmit)}>
-            <Typography>Date: {selectedDate}</Typography>
-            {selectedEvents &&
-              selectedEvents.map((event, index) => (
-                <div key={index}>
-                  <Typography>Title: {event.title}</Typography>
-                  <Typography>Description: {event.description}</Typography>
-                </div>
-              ))}
+            <Typography
+              sx={{
+                color: "text.secondary",
+                m: 2,
+              }}
+            >
+              Date: {selectedDate}
+            </Typography>
+            {selectedEvent && (
+              <>
+                <TypographyTheme>Title: {selectedEvent.title}</TypographyTheme>
+                <TypographyTheme>
+                  Description: {selectedEvent.description}
+                </TypographyTheme>
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() => handleDeleteEvent(selectedEvent.id)}
+                >
+                  Delete
+                </Button>
+              </>
+            )}
             <TextField
               label="Title"
-              defaultValue={selectedEvents ? selectedEvents[0]?.title : ""}
+              defaultValue={selectedEvent ? selectedEvent.title : ""}
               {...register("title", { required: true })}
             />
             {errors.title && <span>Title is required</span>}
             <TextField
               label="Description"
-              defaultValue={
-                selectedEvents ? selectedEvents[0]?.description : ""
-              }
+              defaultValue={selectedEvent ? selectedEvent.description : ""}
               {...register("description")}
             />
             <Button type="submit" variant="contained" color="primary">
