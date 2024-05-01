@@ -20,6 +20,7 @@ const theme = createTheme({
   },
   typography: {
     fontFamily: "Do Hyeon",
+    
   },
   shape: {
     borderRadius: 16,
