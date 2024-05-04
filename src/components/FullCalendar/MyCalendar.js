@@ -7,8 +7,14 @@ import { ref, push, set, get, remove, update } from "firebase/database";
 import { firebaseDb } from "../../firebase/firebase";
 import { useAuth } from "../../context/authContext";
 import { useForm } from "react-hook-form";
-import { Modal, Button, TextField, Typography, Box } from "@mui/material";
-import TypographyTheme from "../../theme/TypographyTheme";
+import { Button, TextField, Typography, Box, Modal } from "@mui/material";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
 
 function MyCalendar() {
   const queryClient = useQueryClient();
@@ -22,6 +28,8 @@ function MyCalendar() {
   const [openModal, setOpenModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteEventId, setDeleteEventId] = useState(null);
 
   useEffect(() => {
     const draggableEl = document.getElementById("draggable-element");
@@ -46,6 +54,12 @@ function MyCalendar() {
 
   const handleModalClose = () => {
     setOpenModal(false);
+  };
+
+  const handleDeleteConfirmation = () => {
+    deleteEventMutation.mutate(deleteEventId);
+    setDeleteEventId(null);
+    setDeleteDialogOpen(false);
   };
 
   const fetchEvents = async () => {
@@ -143,9 +157,8 @@ function MyCalendar() {
   };
 
   const handleDeleteEvent = (eventId) => {
-    if (window.confirm("Are you sure you want to delete this event?")) {
-      deleteEventMutation.mutate(eventId);
-    }
+    setDeleteEventId(eventId);
+    setDeleteDialogOpen(true);
   };
 
   const handleEventDrop = (eventDropInfo) => {
@@ -177,13 +190,9 @@ function MyCalendar() {
   return (
     <>
       <Button onClick={() => refetch()}>Refresh Events</Button>
-      {isLoading && (
-        <TypographyTheme variant="subtitle1">Loading...</TypographyTheme>
-      )}
+      {isLoading && <Typography variant="subtitle1">Loading...</Typography>}
       {isError && (
-        <TypographyTheme variant="subtitle1">
-          Error fetching events
-        </TypographyTheme>
+        <Typography variant="subtitle1">Error fetching events</Typography>
       )}
       <div id="draggable-element">Drag me to create an event</div>
       <FullCalendar
@@ -208,40 +217,35 @@ function MyCalendar() {
         eventClick={(info) => {
           handleModalOpen(info.event.startStr, info.event);
         }}
-        eventDrop={handleEventDrop} // Add event drop handler
-        eventDragStart={handleEventDragStart} // Add event drag start handler
-        eventDragStop={handleEventDragStop} // Add event drag stop handler
+        eventDrop={handleEventDrop}
+        eventDragStart={handleEventDragStart}
+        eventDragStop={handleEventDragStop}
       />
 
       <Modal open={openModal} onClose={handleModalClose}>
         <Box
           sx={{
-            bgcolor: "secondary.main",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
           }}
         >
-          <h2>{selectedEvent ? "Edit Event" : "Add Event"}</h2>
+          <DialogTitle>
+            {selectedEvent ? "Edit Event" : "Add Event"}
+          </DialogTitle>
           <form onSubmit={handleSubmit(handleFormSubmit)}>
-            <Typography
-              sx={{
-                color: "text.secondary",
-                m: 2,
-              }}
-            >
-              Date: {selectedDate}
-            </Typography>
+            <Typography>Date: {selectedDate}</Typography>
             {selectedEvent && (
               <>
-                <TypographyTheme>Title: {selectedEvent.title}</TypographyTheme>
-                <TypographyTheme>
+                <Typography>Title: {selectedEvent.title}</Typography>
+                <Typography>
                   Description: {selectedEvent.description}
-                </TypographyTheme>
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={() => handleDeleteEvent(selectedEvent.id)}
-                >
-                  Delete
-                </Button>
+                </Typography>
               </>
             )}
             <TextField
@@ -255,12 +259,53 @@ function MyCalendar() {
               defaultValue={selectedEvent ? selectedEvent.description : ""}
               {...register("description")}
             />
-            <Button type="submit" variant="contained" color="primary">
-              Save
-            </Button>
+            <Box>
+              <Button type="submit" variant="contained" color="secondary">
+                Save
+              </Button>
+              {selectedEvent && (
+                <Button
+                  onClick={() => handleDeleteEvent(selectedEvent.id)}
+                  variant="contained"
+                  color="error"
+                  style={{ marginLeft: "10px" }}
+                >
+                  Delete
+                </Button>
+              )}
+            </Box>
           </form>
         </Box>
       </Modal>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle
+          sx={{
+            bgcolor: "secondary.main",
+            color: "background",
+          }}
+          variant="h4"
+        >
+          Confirm Delete
+        </DialogTitle>
+        <DialogTitle variant="paragraph">
+          This change is permanent and cannot be undone.
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this event?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleDeleteConfirmation} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
