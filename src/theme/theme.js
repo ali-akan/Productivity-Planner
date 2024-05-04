@@ -4,15 +4,26 @@ const theme = createTheme({
   palette: {
     type: "light",
     primary: {
-      main: "#11e6e2",
+      main: "#ffffd2",
     },
     secondary: {
-      main: "#cb7cd9",
+      main: "#fcbad3",
+    },
+    background: {
+      default: "#aa96da",
+      paper: "#ffffd2",
     },
     text: {
-      primary: "#f9ea0e",
-      secondary: "rgba(0,0,0,0.54)",
+      primary: "#000000",
+      secondary: "#FFFFD2",
     },
+  },
+  typography: {
+    fontFamily: "Do Hyeon",
+    
+  },
+  shape: {
+    borderRadius: 16,
   },
 });
 

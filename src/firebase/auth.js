@@ -35,13 +35,16 @@ export const authPasswordReset = (email) => {
 };
 
 export const authPasswordChange = (password) => {
-  return updatePassword(firebaseAuth.userInfo, password);
+  return updatePassword(firebaseAuth.currentUser, password);
 };
 
 ///email verification part
 
 export const authSendEmailVerification = () => {
-  return sendEmailVerification(firebaseAuth.userInfo, {
-    url: `${window.location.origin}/home`,
-  });
+  const currentUser = firebaseAuth.currentUser;
+  if (currentUser) {
+    return sendEmailVerification(currentUser, {
+      url: `${window.location.origin}/home`,
+    });
+  }
 };
